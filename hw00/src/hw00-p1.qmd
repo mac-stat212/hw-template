@@ -1,0 +1,103 @@
+---
+title: "HW00 P1"
+---
+
+This is a sample file with a sample code.
+
+```{r}
+## Load Necessary Packages
+library(tidyverse)
+```
+
+```{r}
+## Create a sample dataset
+book_sales <- tribble(
+  ~book_id, ~genre, ~author, ~city, ~sales_usd, ~date,
+  "A001", "Fiction", "Author A", "New York", 1500, "2024-01-10",
+  "A002", "Non-fiction", "Author B", "New York", 2200, "2024-01-12",
+  "A003", "Fiction", "Author A", "Los Angeles", 1800, "2024-01-15",
+  "A004", "Sci-Fi", "Author C", "Chicago", 950, "2024-01-18",
+  "A005", "Non-fiction", "Author B", "Chicago", 3100, "2024-01-20",
+  "A006", "Fiction", "Author A", "New York", 1750, "2024-01-22",
+  "A007", "Sci-Fi", "Author C", "Los Angeles", 1200, "2024-01-25"
+) |>
+  mutate(date = as.Date(date))
+
+book_sales
+```
+
+
+
+```{r}
+## Data Cleaning and Manipulation
+cleaned_sales <- book_sales |>
+  # Make genre names consistent by converting to lowercase
+  mutate(genre = tolower(genre)) |>
+  # Filter for sales > $1000
+  filter(sales_usd > 1000)
+```
+
+
+```{r}
+## Data Summarization and Aggregation
+author_summary <- cleaned_sales |>
+  # Group data by author and city
+  group_by(author, city) |>
+  # Summarize to get total sales and the number of books sold
+  summarize(
+    total_sales = sum(sales_usd),
+    books_sold = n(),
+  ) |>
+  # Arrange the data by total sales in descending order
+  arrange(desc(total_sales))
+```
+
+
+## Viz1: Total Sales by Author and City
+```{r}
+author_summary |>
+  ggplot(aes(x = reorder(author, -total_sales), y = total_sales, fill = city)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Total Sales by Author and City",
+    subtitle = "Data filtered for sales over $1000",
+    x = "Author",
+    y = "Total Sales (USD)"
+  ) +
+  theme_minimal()
+```
+
+
+## Viz2: Total Sales by Genre
+```{r}
+genre_summary <- cleaned_sales |>
+  group_by(genre) |>
+  summarize(total_sales = sum(sales_usd))
+
+genre_summary |>
+  ggplot(aes(x = reorder(genre, -total_sales), y = total_sales, fill = genre)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Total Sales by Genre",
+    x = "Genre",
+    y = "Total Sales (USD)"
+  ) +
+  theme_classic()
+```
+
+
+
+## Viz3: Sales by Genre
+```{r}
+cleaned_sales |>
+  ggplot(aes(x = genre, y = sales_usd, color = author)) +
+  geom_point(position = position_jitter(width = 0.2)) +
+  labs(
+    title = "Individual Book Sales by Genre",
+    subtitle = "Points are jittered to avoid overlap",
+    x = "Genre",
+    y = "Sales (USD)"
+  ) +
+  theme_light()
+```
+
