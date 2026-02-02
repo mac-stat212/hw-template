@@ -1,5 +1,8 @@
 ---
 title: "HW00 P1"
+format: 
+  html: 
+    embed-resources: true
 ---
 
 This is a sample file with a sample code.
